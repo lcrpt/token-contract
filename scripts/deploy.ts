@@ -1,22 +1,25 @@
-import { ethers } from "hardhat";
+import { ethers } from 'hardhat';
+import TokenConfig from '../config/TokenConfig';
+import { TokenContractType } from '../lib/TokenContractProvider';
+import TokenArguments from '../config/TokenArguments';
 
 async function main() {
-  const currentTimestampInSeconds = Math.round(Date.now() / 1000);
-  const ONE_YEAR_IN_SECS = 365 * 24 * 60 * 60;
-  const unlockTime = currentTimestampInSeconds + ONE_YEAR_IN_SECS;
+  // Hardhat always runs the compile task when running scripts with its command line interface.
+  // If this script is run directly using `node` you may want to call compile
+  // manually to make sure everything is compiled
+  // await hre.run('compile');
 
-  const lockedAmount = ethers.utils.parseEther("1");
+  console.log('Deploying contract...');
 
-  const Lock = await ethers.getContractFactory("Lock");
-  const lock = await Lock.deploy(unlockTime, { value: lockedAmount });
+  // We get the contract to deploy
+  const Contract = await ethers.getContractFactory(TokenConfig.contractName);
+  const contract = await Contract.deploy(...TokenArguments) as TokenContractType;
 
-  await lock.deployed();
+  await contract.deployed();
 
-  console.log(`Lock with 1 ETH and unlock timestamp ${unlockTime} deployed to ${lock.address}`);
+  console.log('Contract deployed to:', contract.address);
 }
 
-// We recommend this pattern to be able to use async/await everywhere
-// and properly handle errors.
 main().catch((error) => {
   console.error(error);
   process.exitCode = 1;
